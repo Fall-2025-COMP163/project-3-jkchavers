@@ -27,6 +27,8 @@ def create_character(name, character_class):
     Create a new character with stats based on class
     
     Valid classes: Warrior, Mage, Rogue, Cleric
+
+
     
     Returns: Dictionary with character data including:
             - name, class, level, health, max_health, strength, magic
@@ -34,6 +36,7 @@ def create_character(name, character_class):
     
     Raises: InvalidCharacterClassError if class is not valid
     """
+
     # TODO: Implement character creation
     # Validate character_class first
     # Example base stats:
@@ -47,7 +50,22 @@ def create_character(name, character_class):
     # - inventory=[], active_quests=[], completed_quests=[]
     
     # Raise InvalidCharacterClassError if class not in valid list
-    pass
+
+    validate_character_classes = ["Warrior", "Mage", "Rogue", "Cleric"]
+    if character_class not in validate_character_classes:
+        raise InvalidCharacterClassError()
+
+    #ChatGPT created the base_stats dictionary
+    base_stats = {
+        "Warrior": {"health": 120, "strength": 15, "magic": 5},
+        "Mage": {"health": 80, "strength": 8, "magic": 20},
+        "Rogue": {"health": 90, "strength": 12, "magic": 10},
+        "Cleric": {"health": 100, "strength": 10, "magic": 15},
+    }
+
+    stats = base_stats[character_class]
+    return stats
+
 
 def save_character(character, save_directory="data/save_games"):
     """
