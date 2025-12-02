@@ -293,25 +293,31 @@ def warrior_power_strike(character, enemy):
     """Warrior special ability"""
     # TODO: Implement power strike
     # Double strength damage
-    pass
+    enemy["health"] -= (character["strength"] * 2)
+
 
 def mage_fireball(character, enemy):
     """Mage special ability"""
     # TODO: Implement fireball
-    # Double magic damage
-    pass
+    enemy["health"] -= (character["magic"] * 2)
+
 
 def rogue_critical_strike(character, enemy):
     """Rogue special ability"""
     # TODO: Implement critical strike
     # 50% chance for triple damage
+    critical_hit = random.randint(0, 1)
+    if critical_hit == 1:
+        enemy["health"] -= (character["strength"] * 3)
+
     pass
 
 def cleric_heal(character):
     """Cleric special ability"""
     # TODO: Implement healing
     # Restore 30 HP (not exceeding max_health)
-    pass
+    character["health"] = min(character["health"] + 30, character["max_health"])
+
 
 # ============================================================================
 # COMBAT UTILITIES
@@ -324,7 +330,9 @@ def can_character_fight(character):
     Returns: True if health > 0 and not in battle
     """
     # TODO: Implement fight check
-    pass
+    if character["health"] > 0:
+        return True
+
 
 def get_victory_rewards(enemy):
     """
@@ -333,7 +341,8 @@ def get_victory_rewards(enemy):
     Returns: Dictionary with 'xp' and 'gold'
     """
     # TODO: Implement reward calculation
-    pass
+    rewards = {"xp": enemy["xp_reward"], "gold": enemy["gold_reward"]}
+    return rewards
 
 def display_combat_stats(character, enemy):
     """
