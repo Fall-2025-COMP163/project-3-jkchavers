@@ -20,82 +20,88 @@ from custom_exceptions import (
 # DATA LOADING FUNCTIONS
 # ============================================================================
 
-def load_items(filename="data/items.txt"):
+def load_quests(filename="data/quests.txt"):
     """
-    Load item data from file using block-based format.
+    Load quest data from file using block-based format.
 
-    Expected format per item (separated by blank lines):
+    Expected quest format:
 
-    ITEM_ID: unique_item_name
-    NAME: Item Display Name
-    TYPE: weapon|armor|consumable
-    EFFECT: stat:value
-    COST: number
+    QUEST_ID: quest_name
+    NAME: Quest Display Name
     DESCRIPTION: text
+    REWARD_GOLD: number
+    REWARD_EXP: number
+    REQUIRED_LEVEL: number
+    PREREQUISITE: another_quest_id or NONE
 
-    Returns: dict {item_id: item_info_dict}
+    Blank line separates each quest block.
     """
 
-    # Load file
+    # load file
     try:
         with open(filename, "r") as f:
             lines = [line.strip() for line in f.readlines()]
     except FileNotFoundError:
         raise MissingDataFileError(f"File '{filename}' not found.")
 
-    items = {}
+    quests = {}
     current = {}
 
-    def commit_item():
-        """Validates & saves the current item block."""
+    def commit_quest():
+        """Validate and store quest."""
         if not current:
             return
 
-        required_fields = ["ITEM_ID", "NAME", "TYPE", "EFFECT", "COST", "DESCRIPTION"]
+        required = [
+            "QUEST_ID", "NAME", "DESCRIPTION",
+            "REWARD_GOLD", "REWARD_EXP",
+            "REQUIRED_LEVEL", "PREREQUISITE"
+        ]
 
-        # Missing fields?
-        for field in required_fields:
+        # check fields
+        for field in required:
             if field not in current:
-                raise InvalidDataFormatError(f"Missing field '{field}' in item block.")
+                raise InvalidDataFormatError(f"Missing field '{field}' in quest block.")
 
-        item_id = current["ITEM_ID"]
+        quest_id = current["QUEST_ID"]
 
-        # Effect format validation: stat:value
-        if ":" not in current["EFFECT"]:
-            raise CorruptedDataError(f"Invalid EFFECT format in item '{item_id}'.")
+        # validate numeric fields
+        for field in ["REWARD_GOLD", "REWARD_EXP", "REQUIRED_LEVEL"]:
+            try:
+                current[field] = int(current[field])
+            except ValueError:
+                raise CorruptedDataError(f"{field} must be an integer in quest '{quest_id}'.")
 
-        # Cost should be integer
-        try:
-            cost_val = int(current["COST"])
-        except ValueError:
-            raise CorruptedDataError(f"COST must be an integer for item '{item_id}'.")
+        # NONE → None
+        prereq = current["PREREQUISITE"]
+        if prereq.upper() == "NONE":
+            prereq = None
 
-        # Save formatted item
-        items[item_id] = {
+        quests[quest_id] = {
             "name": current["NAME"],
-            "type": current["TYPE"],
-            "effect": current["EFFECT"],
-            "cost": cost_val,
-            "description": current["DESCRIPTION"]
+            "description": current["DESCRIPTION"],
+            "reward_gold": current["REWARD_GOLD"],
+            "reward_exp": current["REWARD_EXP"],
+            "required_level": current["REQUIRED_LEVEL"],
+            "prerequisite": prereq
         }
 
-    # --- Parse block-by-block ---
+    # parse file
     for line in lines:
         if not line:
-            commit_item()
+            commit_quest()
             current = {}
             continue
 
         if ":" not in line:
-            raise InvalidDataFormatError(f"Invalid line in item file: {line}")
+            raise InvalidDataFormatError(f"Invalid line in quests file: {line}")
 
         key, value = [p.strip() for p in line.split(":", 1)]
         current[key] = value
 
-    # Commit last block if file doesn't end with a blank line
-    commit_item()
+    commit_quest()  # end of file
 
-    return items
+    return quests
 
 
 def load_items(filename="data/items.txt"):
