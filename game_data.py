@@ -20,67 +20,82 @@ from custom_exceptions import (
 # DATA LOADING FUNCTIONS
 # ============================================================================
 
-def load_quests(filename="data/quests.txt"):
+def load_items(filename="data/items.txt"):
+    """
+    Load item data from file using block-based format.
+
+    Expected format per item (separated by blank lines):
+
+    ITEM_ID: unique_item_name
+    NAME: Item Display Name
+    TYPE: weapon|armor|consumable
+    EFFECT: stat:value
+    COST: number
+    DESCRIPTION: text
+
+    Returns: dict {item_id: item_info_dict}
+    """
+
+    # Load file
     try:
         with open(filename, "r") as f:
-            lines = f.read().strip().splitlines()
+            lines = [line.strip() for line in f.readlines()]
     except FileNotFoundError:
         raise MissingDataFileError(f"File '{filename}' not found.")
 
-    quests = {}
+    items = {}
     current = {}
 
-    # Helper to store a completed quest block
-    def commit_current():
+    def commit_item():
+        """Validates & saves the current item block."""
         if not current:
             return
 
-        required = [
-            "QUEST_ID", "TITLE", "DESCRIPTION",
-            "REWARD_XP", "REWARD_GOLD",
-            "REQUIRED_LEVEL", "PREREQUISITE"
-        ]
+        required_fields = ["ITEM_ID", "NAME", "TYPE", "EFFECT", "COST", "DESCRIPTION"]
 
-        # Check all required fields exist
-        for key in required:
-            if key not in current:
-                raise InvalidDataFormatError(f"Missing required field: {key}")
+        # Missing fields?
+        for field in required_fields:
+            if field not in current:
+                raise InvalidDataFormatError(f"Missing field '{field}' in item block.")
 
-        qid = current["QUEST_ID"]
+        item_id = current["ITEM_ID"]
 
-        # Build quest dictionary
-        quests[qid] = {
-            "quest_id": qid,
-            "title": current["TITLE"],
-            "description": current["DESCRIPTION"],
-            "reward_xp": int(current["REWARD_XP"]),
-            "reward_gold": int(current["REWARD_GOLD"]),
-            "required_level": int(current["REQUIRED_LEVEL"]),
-            "prerequisite": current["PREREQUISITE"]
+        # Effect format validation: stat:value
+        if ":" not in current["EFFECT"]:
+            raise CorruptedDataError(f"Invalid EFFECT format in item '{item_id}'.")
+
+        # Cost should be integer
+        try:
+            cost_val = int(current["COST"])
+        except ValueError:
+            raise CorruptedDataError(f"COST must be an integer for item '{item_id}'.")
+
+        # Save formatted item
+        items[item_id] = {
+            "name": current["NAME"],
+            "type": current["TYPE"],
+            "effect": current["EFFECT"],
+            "cost": cost_val,
+            "description": current["DESCRIPTION"]
         }
 
-    # Parse each line
+    # --- Parse block-by-block ---
     for line in lines:
-        line = line.strip()
-
-        # Blank line → end of a quest block
         if not line:
-            commit_current()
+            commit_item()
             current = {}
             continue
 
-        # Expected format: KEY: value
         if ":" not in line:
-            raise InvalidDataFormatError(f"Invalid quest format: {line}")
+            raise InvalidDataFormatError(f"Invalid line in item file: {line}")
 
-        key, value = line.split(":", 1)
-        current[key.strip()] = value.strip()
+        key, value = [p.strip() for p in line.split(":", 1)]
+        current[key] = value
 
-    # Commit final block at EOF
-    commit_current()
+    # Commit last block if file doesn't end with a blank line
+    commit_item()
 
-    return quests
-
+    return items
 
 
 def load_items(filename="data/items.txt"):
