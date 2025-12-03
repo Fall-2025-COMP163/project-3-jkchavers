@@ -225,21 +225,21 @@ def create_default_data_files():
 
     # Default quest file
     default_quests = """\
-    QUEST_ID: quest_intro
-    TITLE: Hi Sunbro
-    DESCRIPTION: Begin your adventure by speaking to the shaman of the sun.
-    REWARD_XP: 50
-    REWARD_GOLD: 10
+    QUEST_ID: quest_1
+    NAME: Rescue the Villager
+    DESCRIPTION: Save the kidnapped villager from goblins.
+    REWARD_GOLD: 50
+    REWARD_EXP: 40
     REQUIRED_LEVEL: 1
     PREREQUISITE: NONE
 
-    QUEST_ID: quest_infestation
-    TITLE: Cockroach army
-    DESCRIPTION: Defeat the army of cockroaches, and you will be one step closer to your destiny
-    REWARD_XP: 100
-    REWARD_GOLD: 25
-    REQUIRED_LEVEL: 1
-    PREREQUISITE: quest_intro
+    QUEST_ID: quest_2
+    NAME: Defeat the Goblin Chief
+    DESCRIPTION: Hunt down and defeat the leader of the goblins.
+    REWARD_GOLD: 100
+    REWARD_EXP: 80
+    REQUIRED_LEVEL: 2
+    PREREQUISITE: quest_1
     """
 
     # Default items
