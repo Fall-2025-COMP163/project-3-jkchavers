@@ -405,7 +405,7 @@ def display_quest_info(quest_data):
     # TODO: Implement quest display
     print(f"\n=== {quest_data['title']} ===")
     print(f"Description: {quest_data['description']}")
-    print("\n==============================")")
+    print("\n==============================")
     print(f"Prerequisite: {quest_data['prerequisite']}")
     print(f"Reward XP: {quest_data['reward_xp']}")
     print(f"Reward Gold: {quest_data['reward_gold']}")
