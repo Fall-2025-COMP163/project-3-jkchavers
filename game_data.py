@@ -213,15 +213,12 @@ def validate_item_data(item_dict):
     return True
 
 def create_default_data_files():
-    """
-    Create default data files if they don't exist
-    This helps with initial setup and testing
-    """
     import os
+    from custom_exceptions import InvalidDataFormatError
 
     os.makedirs("data", exist_ok=True)
 
-    # Default quest file
+    # Default quests
     default_quests = """\
 QUEST_ID: quest_1
 NAME: Rescue the Villager
@@ -275,7 +272,6 @@ DESCRIPTION: Light protective armor.
 
     except PermissionError:
         print("Cannot write default data files — permission denied.")
-
 
 # ============================================================================
 # HELPER FUNCTIONS
