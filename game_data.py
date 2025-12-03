@@ -42,10 +42,10 @@ def load_quests(filename="data/quests.txt"):
     # - Invalid format → raise InvalidDataFormatError
     # - Corrupted/unreadable data → raise CorruptedDataError
     try:
-        with open(path, "r") as f:
+        with open(filename, "r") as f:
             lines = f.readlines()
     except FileNotFoundError:
-        raise MissingDataFileError(f"File '{path}' not found.")
+        raise MissingDataFileError(f"File '{filename}' not found.")
 
     quests = {}
 
