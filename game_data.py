@@ -41,32 +41,40 @@ def load_quests(filename="data/quests.txt"):
     # - FileNotFoundError → raise MissingDataFileError
     # - Invalid format → raise InvalidDataFormatError
     # - Corrupted/unreadable data → raise CorruptedDataError
-    if not os.path.exists(filename):
-        raise MissingDataFileError(f"Quest file not found: {filename}")
-
     try:
-        with open(filename, "r", encoding="utf-8") as f:
-            content = f.read().strip()
+        with open(path, "r") as f:
+            lines = f.readlines()
+    except FileNotFoundError:
+        raise MissingDataFileError(f"File '{path}' not found.")
 
-        if not content:
-            raise CorruptedDataError("Quest file is empty.")
+    quests = {}
 
-        blocks = content.split("\n\n")  # quests separated by blank lines
-        quest_dict = {}
+    for line in lines:
+        line = line.strip()
 
-        for block in blocks:
-            lines = [line.strip() for line in block.split("\n") if line.strip()]
-            quest = parse_quest_block(lines)
-            validate_quest_data(quest)
-            quest_dict[quest["quest_id"]] = quest
+        if not line or line.startswith("#"):
+            continue
 
-        return quest_dict
-    except MissingDataFileError:
-        print(f"Quest file not found: {filename}")
-    except InvalidDataFormatError:
-        print(f"Invalid data format")
-    except CorruptedDataError:
-        print("Quest data file is unreadable or corrupted.")
+        parts = line.split(",")
+
+        # EXPECTED FORMAT:
+        # quest_id,title,description,reward_xp,reward_gold,required_level,prerequisite
+        if len(parts) != 7:
+            raise InvalidDataFormatError(f"Invalid quest format: {line}")
+
+        qid, title, desc, xp, gold, level, prereq = parts
+
+        quests[qid] = {
+            "quest_id": qid,
+            "title": title,
+            "description": desc,
+            "reward_xp": int(xp),
+            "reward_gold": int(gold),
+            "required_level": int(level),
+            "prerequisite": prereq
+        }
+
+    return quests
 
 
 def load_items(filename="data/items.txt"):
@@ -86,34 +94,33 @@ def load_items(filename="data/items.txt"):
     """
     # TODO: Implement this function
     # Must handle same exceptions as load_quests
-    if not os.path.exists(filename):
-        raise MissingDataFileError(f"Item file not found: {filename}")
-
     try:
-        with open(filename, "r", encoding="utf-8") as f:
-            content = f.read().strip()
+        with open(filename, "r") as f:
+            lines = f.readlines()
+    except FileNotFoundError:
+        raise MissingDataFileError(f"File '{filename}' not found.")
 
-        if not content:
-            raise CorruptedDataError("Item file is empty.")
+    items = {}
 
-        blocks = content.split("\n\n")
-        item_dict = {}
+    for line in lines:
+        line = line.strip()
 
-        for block in blocks:
-            lines = [line.strip() for line in block.split("\n") if line.strip()]
-            item = parse_item_block(lines)
-            validate_item_data(item)
-            item_dict[item["item_id"]] = item
+        if not line or line.startswith("#"):
+            continue
 
-        return item_dict
+        parts = line.split(",")
 
-    except MissingDataFileError:
-        print(f"Item data not found: {filename}")
-    except InvalidDataFormatError:
-        print("Invalid data format")
-    except CorruptedDataError:
-        print("Item data file is unreadable or corrupted.")
+        # EXPECTED FORMAT: item_id,type,effect
+        if len(parts) != 3:
+            raise InvalidDataFormatError(f"Invalid item format: {line}")
 
+        item_id, item_type, effect = parts
+        items[item_id] = {
+            "type": item_type,
+            "effect": effect
+        }
+
+    return items
 def validate_quest_data(quest_dict):
     """
     Validate that quest dictionary has all required fields
