@@ -217,18 +217,23 @@ def create_default_data_files():
 
     os.makedirs("data", exist_ok=True)
 
-    # Default quests in CSV format
     default_quests = """\
-quest_1,Rescue the Villager,Save the kidnapped villager from goblins.,40,50,1,NONE
-quest_2,Defeat Goblin Leader,Hunt down and defeat the leader of the goblins.,80,100,2,quest_1
-"""
+    QUEST_ID: quest_1
+    NAME: Rescue the Villager
+    DESCRIPTION: Save the kidnapped villager from goblins.
+    REWARD_GOLD: 50
+    REWARD_EXP: 40
+    REQUIRED_LEVEL: 1
+    PREREQUISITE: NONE
 
-    # Default items in CSV format: ITEM_ID,NAME,TYPE,EFFECT,COST,DESCRIPTION
-    default_items = """\
-small_potion,Small Health Potion,consumable,health:20,15,Restores a small amount of health.
-iron_sword,Iron Sword,weapon,strength:3,60,A basic iron sword.
-leather_armor,Leather Armor,armor,max_health:10,40,Light protective armor.
-"""
+    QUEST_ID: quest_2
+    NAME: Defeat Goblin Leader
+    DESCRIPTION: Hunt down and defeat the leader of the goblins.
+    REWARD_GOLD: 100
+    REWARD_EXP: 80
+    REQUIRED_LEVEL: 2
+    PREREQUISITE: quest_1
+    """
 
     # Write files if they don't exist
     if not os.path.exists("data/quests.txt"):
