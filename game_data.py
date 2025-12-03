@@ -219,7 +219,7 @@ def create_default_data_files():
 
     default_quests = """\
     QUEST_ID: quest_1
-    NAME: Rescue the Villager
+    TITLE: Rescue the Villager
     DESCRIPTION: Save the kidnapped villager from goblins.
     REWARD_GOLD: 50
     REWARD_EXP: 40
@@ -227,7 +227,7 @@ def create_default_data_files():
     PREREQUISITE: NONE
 
     QUEST_ID: quest_2
-    NAME: Defeat Goblin Leader
+    TITLE: Defeat Goblin Leader
     DESCRIPTION: Hunt down and defeat the leader of the goblins.
     REWARD_GOLD: 100
     REWARD_EXP: 80
