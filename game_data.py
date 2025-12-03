@@ -235,6 +235,29 @@ def create_default_data_files():
     PREREQUISITE: quest_1
     """
 
+    default_items = """\
+    ITEM_ID: small_potion
+    NAME: Small Health Potion
+    TYPE: consumable
+    EFFECT: health:20
+    COST: 15
+    DESCRIPTION: Restores a small amount of health.
+
+    ITEM_ID: iron_sword
+    NAME: Iron Sword
+    TYPE: weapon
+    EFFECT: strength:3
+    COST: 60
+    DESCRIPTION: A basic iron sword.
+
+    ITEM_ID: leather_armor
+    NAME: Leather Armor
+    TYPE: armor
+    EFFECT: max_health:10
+    COST: 40
+    DESCRIPTION: Light protective armor.
+    """
+
     # Write files if they don't exist
     if not os.path.exists("data/quests.txt"):
         with open("data/quests.txt", "w", encoding="utf-8") as f:
