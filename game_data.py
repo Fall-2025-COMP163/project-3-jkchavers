@@ -21,60 +21,66 @@ from custom_exceptions import (
 # ============================================================================
 
 def load_quests(filename="data/quests.txt"):
-    """
-    Load quest data from file
-    
-    Expected format per quest (separated by blank lines):
-    QUEST_ID: unique_quest_name
-    TITLE: Quest Display Title
-    DESCRIPTION: Quest description text
-    REWARD_XP: 100
-    REWARD_GOLD: 50
-    REQUIRED_LEVEL: 1
-    PREREQUISITE: previous_quest_id (or NONE)
-    
-    Returns: Dictionary of quests {quest_id: quest_data_dict}
-    Raises: MissingDataFileError, InvalidDataFormatError, CorruptedDataError
-    """
-    # TODO: Implement this function
-    # Must handle:
-    # - FileNotFoundError → raise MissingDataFileError
-    # - Invalid format → raise InvalidDataFormatError
-    # - Corrupted/unreadable data → raise CorruptedDataError
     try:
         with open(filename, "r") as f:
-            lines = f.readlines()
+            lines = f.read().strip().splitlines()
     except FileNotFoundError:
         raise MissingDataFileError(f"File '{filename}' not found.")
 
     quests = {}
+    current = {}
 
+    # Helper to store a completed quest block
+    def commit_current():
+        if not current:
+            return
+
+        required = [
+            "QUEST_ID", "TITLE", "DESCRIPTION",
+            "REWARD_XP", "REWARD_GOLD",
+            "REQUIRED_LEVEL", "PREREQUISITE"
+        ]
+
+        # Check all required fields exist
+        for key in required:
+            if key not in current:
+                raise InvalidDataFormatError(f"Missing required field: {key}")
+
+        qid = current["QUEST_ID"]
+
+        # Build quest dictionary
+        quests[qid] = {
+            "quest_id": qid,
+            "title": current["TITLE"],
+            "description": current["DESCRIPTION"],
+            "reward_xp": int(current["REWARD_XP"]),
+            "reward_gold": int(current["REWARD_GOLD"]),
+            "required_level": int(current["REQUIRED_LEVEL"]),
+            "prerequisite": current["PREREQUISITE"]
+        }
+
+    # Parse each line
     for line in lines:
         line = line.strip()
 
-        if not line or line.startswith("#"):
+        # Blank line → end of a quest block
+        if not line:
+            commit_current()
+            current = {}
             continue
 
-        parts = line.split(",")
-
-        # EXPECTED FORMAT:
-        # quest_id,title,description,reward_xp,reward_gold,required_level,prerequisite
-        if len(parts) != 7:
+        # Expected format: KEY: value
+        if ":" not in line:
             raise InvalidDataFormatError(f"Invalid quest format: {line}")
 
-        qid, title, desc, xp, gold, level, prereq = parts
+        key, value = line.split(":", 1)
+        current[key.strip()] = value.strip()
 
-        quests[qid] = {
-            "quest_id": qid,
-            "title": title,
-            "description": desc,
-            "reward_xp": int(xp),
-            "reward_gold": int(gold),
-            "required_level": int(level),
-            "prerequisite": prereq
-        }
+    # Commit final block at EOF
+    commit_current()
 
     return quests
+
 
 
 def load_items(filename="data/items.txt"):
