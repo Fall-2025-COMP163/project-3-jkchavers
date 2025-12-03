@@ -60,10 +60,10 @@ def create_character(name, character_class):
 
 
     base_stats = {
-        "Warrior": {"health": 120, "strength": 15, "magic": 5, "inventory:": {inventory}, "active quests" : {active_quests}, "completed quests": {completed_quests}},
-        "Mage": {"health": 80, "strength": 8, "magic": 20, "inventory:": {inventory}, "active quests" : {active_quests}, "completed quests": {completed_quests}},
-        "Rogue": {"health": 90, "strength": 12, "magic": 10, "inventory:": {inventory}, "active quests" : {active_quests}, "completed quests": {completed_quests}},
-        "Cleric": {"health": 100, "strength": 10, "magic": 15, "inventory:": {inventory}, "active quests" : {active_quests}, "completed quests": {completed_quests}},
+        "Warrior": {"health": 120, "strength": 15, "magic": 5, "inventory:": inventory, "active quests" : active_quests, "completed quests": completed_quests},
+        "Mage": {"health": 80, "strength": 8, "magic": 20, "inventory:": inventory, "active quests" : active_quests, "completed quests": completed_quests},
+        "Rogue": {"health": 90, "strength": 12, "magic": 10, "inventory:": inventory, "active quests" : active_quests, "completed quests": completed_quests},
+        "Cleric": {"health": 100, "strength": 10, "magic": 15, "inventory:": inventory, "active quests" : active_quests, "completed quests": completed_quests},
 
     }
 
@@ -124,29 +124,58 @@ def save_character(character, save_directory="data/save_games"):
 def load_character(character_name, save_directory="data/save_games"):
     """
     Load character from save file
-    
+
     Args:
         character_name: Name of character to load
         save_directory: Directory containing save files
 
     Returns: Character dictionary
-    Raises: 
+    Raises:
         CharacterNotFoundError if save file doesn't exist
         SaveFileCorruptedError if file exists but can't be read
         InvalidSaveDataError if data format is wrong
     """
     # TODO: Implement load functionality
-    character = {}
+    save_path = os.path.join(save_directory, f"{character_name}_save.txt")
+
+    # Check if file exists
+    if not os.path.exists(save_path):
+        raise CharacterNotFoundError(f"Character '{character_name}' not found.")
+
     try:
-        with open(save_directory, "r") as f:
-            character = f.read()
+        with open(save_path, "r") as f:
+            lines = f.readlines()
+
+        character = {}
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            if ":" not in line:
+                raise InvalidSaveDataError("Line missing ':' separator")
+            key, value = line.split(":", 1)
+            key = key.strip().lower()
+            value = value.strip()
+
+            # Convert numeric fields
+            if key in ["level", "health", "max_health", "strength", "magic", "experience", "gold"]:
+                try:
+                    value = int(value)
+                except ValueError:
+                    raise InvalidSaveDataError(f"{key} must be an integer")
+
+            # Convert list fields
+            if key in ["inventory", "active_quests", "completed_quests"]:
+                value = value.split(",") if value else []
+
+            character[key] = value
+
         return character
-    except Exception as error:
-        print(f"An error occured while saving!\n Error: {error}")
-    # Check if file exists → CharacterNotFoundError
-    # Try to read file → SaveFileCorruptedError
-    # Validate data format → InvalidSaveDataError
-    # Parse comma-separated lists back into Python lists
+
+    except InvalidSaveDataError:
+        raise
+    except SaveFileCorruptedError as e:
+        print(f"Could not read save file: {e}")
 
 
 def list_saved_characters(save_directory="data/save_games"):
@@ -282,7 +311,7 @@ def is_character_dead(character):
     """
     # TODO: Implement death check
     if character["health"] <= 0:
-        return True
+        raise CharacterDeadError(f"{character['name']} is dead")
 
 
 def revive_character(character):

@@ -127,33 +127,20 @@ def validate_quest_data(quest_dict):
     # TODO: Implement validation
     # Check that all required keys exist
     # Check that numeric values are actually numbers
-    if quest_dict is None or not isinstance(quest_dict, dict):
-        raise InvalidDataFormatError("Quest data is missing or invalid")
+    if not isinstance(quest_dict, dict):
+        raise InvalidDataFormatError("Quest data is invalid or missing")
 
-    required = [
-        "quest_id",
-        "title",
-        "description",
-        "reward_xp",
-        "reward_gold",
-        "required_level",
-        "prerequisite",
-    ]
-
+    required = ["quest_id", "title", "description", "reward_xp", "reward_gold", "required_level", "prerequisite"]
     for field in required:
         if field not in quest_dict:
             raise InvalidDataFormatError(f"Missing required field: {field}")
 
-    # Ensure numeric fields are integers
-    if not isinstance(quest_dict["reward_xp"], int):
-        raise InvalidDataFormatError("reward_xp must be an integer")
-    if not isinstance(quest_dict["reward_gold"], int):
-        raise InvalidDataFormatError("reward_gold must be an integer")
-    if not isinstance(quest_dict["required_level"], int):
-        raise InvalidDataFormatError("required_level must be an integer")
+    # ensure numeric fields
+    for field in ["reward_xp", "reward_gold", "required_level"]:
+        if not isinstance(quest_dict[field], int):
+            raise InvalidDataFormatError(f"{field} must be an integer")
 
     return True
-
 
 def validate_item_data(item_dict):
     """

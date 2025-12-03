@@ -51,18 +51,18 @@ def accept_quest(character, quest_id, quest_data_dict):
     # Check not already active
     # Add to character['active_quests']
 
-    quest = quest_data_dict[quest_id] # Check quest exists
-    if quest is None:
-        return False
+    if quest_id not in quest_data_dict:
+        raise QuestNotFoundError(f"Quest '{quest_id}' does not exist")
+
+    quest = quest_data_dict[quest_id]
 
     if character["level"] < quest["required_level"]:
 
         raise InsufficientLevelError
 
-
-    prerequisite = get_quest_prerequisite_chain(quest_id, quest_data_dict)# Check prerequisite quest is completed (if any)
-    if prerequisite and not character["completed_quests"]:
-        return False
+    prereq = quest["prerequisite"]
+    if prereq != "NONE" and prereq not in character["completed_quests"]:
+        raise QuestRequirementsNotMetError(f"Prerequisite quest '{prereq}' not completed")
 
 
     if quest_id in character["completed_quests"]:# Check quest is not already completed
