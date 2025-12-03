@@ -102,13 +102,13 @@ def complete_quest(character, quest_id, quest_data_dict):
     # Grant rewards (use character_manager.gain_experience and add_gold)
     # Return reward summary
     # 1. Check quest exists
-    if quest_id not in quests:
+    if quest_id not in quest_data_dict:
         raise QuestNotFoundError(f"Quest '{quest_id}' does not exist")
 
     if quest_id not in character["active_quests"]:
         raise QuestNotActiveError(f"Quest '{quest_id}' is not active")
 
-    quest = quests[quest_id]
+    quest = quest_data_dict[quest_id]
 
     # Reward XP & gold
     character["experience"] += quest["reward_xp"]

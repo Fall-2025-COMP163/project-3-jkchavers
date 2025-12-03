@@ -265,7 +265,9 @@ def gain_experience(character, xp_amount):
     # Check for level up (can level up multiple times)
     # Update stats on level up
 
-    character["experience"] += amount
+    if character["health"] <= 0:
+        raise CharacterDeadError("Character is dead and cannot gain experience.")
+    character["experience"] += xp_amount
 
     # Level-up threshold
     LEVEL_XP = 100
