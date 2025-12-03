@@ -214,64 +214,30 @@ def validate_item_data(item_dict):
 
 def create_default_data_files():
     import os
-    from custom_exceptions import InvalidDataFormatError
 
     os.makedirs("data", exist_ok=True)
 
-    # Default quests
+    # Default quests in CSV format
     default_quests = """\
-QUEST_ID: quest_1
-NAME: Rescue the Villager
-DESCRIPTION: Save the kidnapped villager from goblins.
-REWARD_GOLD: 50
-REWARD_EXP: 40
-REQUIRED_LEVEL: 1
-PREREQUISITE: NONE
-
-QUEST_ID: quest_2
-NAME: Defeat Goblin Leader
-DESCRIPTION: Hunt down and defeat the leader of the goblins.
-REWARD_GOLD: 100
-REWARD_EXP: 80
-REQUIRED_LEVEL: 2
-PREREQUISITE: quest_1
+quest_1,Rescue the Villager,Save the kidnapped villager from goblins.,40,50,1,NONE
+quest_2,Defeat Goblin Leader,Hunt down and defeat the leader of the goblins.,80,100,2,quest_1
 """
 
-    # Default items
+    # Default items in CSV format: ITEM_ID,NAME,TYPE,EFFECT,COST,DESCRIPTION
     default_items = """\
-ITEM_ID: small_potion
-NAME: Small Health Potion
-TYPE: consumable
-EFFECT: health:20
-COST: 15
-DESCRIPTION: Restores a small amount of health.
-
-ITEM_ID: iron_sword
-NAME: Iron Sword
-TYPE: weapon
-EFFECT: strength:3
-COST: 60
-DESCRIPTION: A basic iron sword.
-
-ITEM_ID: leather_armor
-NAME: Leather Armor
-TYPE: armor
-EFFECT: max_health:10
-COST: 40
-DESCRIPTION: Light protective armor.
+small_potion,Small Health Potion,consumable,health:20,15,Restores a small amount of health.
+iron_sword,Iron Sword,weapon,strength:3,60,A basic iron sword.
+leather_armor,Leather Armor,armor,max_health:10,40,Light protective armor.
 """
 
-    try:
-        if not os.path.exists("data/quests.txt"):
-            with open("data/quests.txt", "w", encoding="utf-8") as f:
-                f.write(default_quests)
+    # Write files if they don't exist
+    if not os.path.exists("data/quests.txt"):
+        with open("data/quests.txt", "w", encoding="utf-8") as f:
+            f.write(default_quests)
 
-        if not os.path.exists("data/items.txt"):
-            with open("data/items.txt", "w", encoding="utf-8") as f:
-                f.write(default_items)
-
-    except PermissionError:
-        print("Cannot write default data files — permission denied.")
+    if not os.path.exists("data/items.txt"):
+        with open("data/items.txt", "w", encoding="utf-8") as f:
+            f.write(default_items)
 
 # ============================================================================
 # HELPER FUNCTIONS
