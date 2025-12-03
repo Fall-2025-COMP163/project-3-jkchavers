@@ -60,10 +60,11 @@ def accept_quest(character, quest_id, quest_data_dict):
 
         raise InsufficientLevelError
 
-    prereq = str(quest["prerequisite"]).upper()
+    prereq = quest["prerequisite"]
 
-    if prereq != "NONE" and prereq not in character["completed_quests"]:
-        raise QuestRequirementsNotMetError(f"Prerequisite quest '{prereq}' not completed")
+    if prereq != "NONE":
+        if prereq.lower() not in [q.lower() for q in character["completed_quests"]]:
+            raise QuestRequirementsNotMetError(f"Prerequisite '{prereq}' not completed")
 
     if quest_id in character["completed_quests"]:
         raise QuestAlreadyCompletedError(f"Quest '{quest_id}' already completed.")
@@ -101,36 +102,23 @@ def complete_quest(character, quest_id, quest_data_dict):
     # Grant rewards (use character_manager.gain_experience and add_gold)
     # Return reward summary
     # 1. Check quest exists
-    quest = quest_data_dict.get(quest_id)
-    if quest is None:
-        raise QuestNotFoundError()
-        return None
+    if quest_id not in quests:
+        raise QuestNotFoundError(f"Quest '{quest_id}' does not exist")
 
-    # 2. Check it is active
     if quest_id not in character["active_quests"]:
-        raise QuestNotActiveError()
+        raise QuestNotActiveError(f"Quest '{quest_id}' is not active")
 
+    quest = quests[quest_id]
 
-    # 3. Remove from active quests
+    # Reward XP & gold
+    character["experience"] += quest["reward_xp"]
+    character["gold"] += quest["reward_gold"]
+
+    # Remove from active, add to completed
     character["active_quests"].remove(quest_id)
-
-    # 4. Add to completed
     character["completed_quests"].append(quest_id)
 
-    # 5. Grant rewards
-    reward_xp = quest["reward_xp"]
-    reward_gold = quest["reward_gold"]
-
-
-    character["experience"] = character_manager.gain_experience(character, reward_xp)
-    character["gold"] = character_manager.add_gold(character, reward_gold)
-
-    return {
-        "xp": reward_xp,
-        "gold": reward_gold,
-        "quest_name": quest.get("name", quest_id)
-    }
-
+    return True
 
 def abandon_quest(character, quest_id):
     """

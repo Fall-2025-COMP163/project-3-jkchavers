@@ -265,15 +265,20 @@ def gain_experience(character, xp_amount):
     # Check for level up (can level up multiple times)
     # Update stats on level up
 
-    if character["health"] <= 0:
-        raise CharacterDeadError
-    else:
-        while character["experience"] >= (character["level"] * 100): #keeps leveling up until character xp is less than character level * 100
-                character["level"] += xp_amount
-                character["health"] = character["max_health"] + 10
-                character["strength"] = character["strength"] + 2
-                character["magic"] = character["magic"] + 2
+    character["experience"] += amount
 
+    # Level-up threshold
+    LEVEL_XP = 100
+
+    leveled_up = False
+    while character["experience"] >= LEVEL_XP:
+        character["experience"] -= LEVEL_XP
+        character["level"] += 1
+        character["max_health"] += 20
+        character["health"] = character["max_health"]
+        leveled_up = True
+
+    return leveled_up
 
 
 def add_gold(character, amount):
