@@ -291,10 +291,12 @@ def add_gold(character, amount):
     # Check that result won't be negative
     # Update character's gold
 
-    if amount < 0:
-        raise ValueError
-    else:
-        character["gold"] += amount
+    new_total = character["gold"] + amount
+    if new_total < 0:
+        raise ValueError("Gold cannot go negative.")
+
+    character["gold"] = new_total
+    return character["gold"]
 
 
 def heal_character(character, amount):
@@ -373,14 +375,14 @@ def validate_character_data(character):
         raise InvalidSaveDataError("Character data must be a dictionary.")
 
     # Check required keys and types
-    for key, expected_type in enumerate(required_fields):
+    for key, expected_type in required_fields.items():
         if key not in character:
             raise InvalidSaveDataError(f"Missing required field: '{key}'")
 
         if not isinstance(character[key], expected_type):
-            raise InvalidSaveDataError(f"'{key}' must be a {expected_type}.")
-
-
+            raise InvalidSaveDataError(
+                f"'{key}' must be of type {expected_type.__name__}"
+            )
     return True
 
 # ============================================================================

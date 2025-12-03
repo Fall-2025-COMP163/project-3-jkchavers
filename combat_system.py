@@ -34,21 +34,43 @@ def create_enemy(enemy_type):
     Raises: InvalidTargetError if enemy_type not recognized
     """
     # TODO: Implement enemy creation
-    goblin = {"goblin":{"health": 50, "strength": 8, "magic": 2, "xp_reward": 25, "gold_reward": 10}}
-    orc = {"orc":{"health": 80, "strength": 12, "magic": 5, "xp_reward": 50, "gold_reward": 25}}
-    dragon = {"dragon":{"health": 200, "strength": 25, "magic": 15, "xp_reward": 200, "gold_reward": 100}}
-    if enemy_type == "goblin":
-        return goblin
-    elif enemy_type == "orc":
-        return orc
-    elif enemy_type == "dragon":
-        return dragon
-    else:
-        raise InvalidTargetError("enemy_type not recognized")
+    enemy_type = enemy_type.lower()
 
+    enemies = {
+        "goblin": {
+            "name": "Goblin",
+            "health": 50,
+            "max_health": 50,
+            "strength": 8,
+            "magic": 2,
+            "xp_reward": 25,
+            "gold_reward": 10
+        },
+        "orc": {
+            "name": "Orc",
+            "health": 80,
+            "max_health": 80,
+            "strength": 12,
+            "magic": 5,
+            "xp_reward": 50,
+            "gold_reward": 25
+        },
+        "dragon": {
+            "name": "Dragon",
+            "health": 200,
+            "max_health": 200,
+            "strength": 25,
+            "magic": 15,
+            "xp_reward": 200,
+            "gold_reward": 100
+        }
+    }
 
-    # Return dictionary with: name, health, max_health, strength, magic, xp_reward, gold_reward
-    pass
+    if enemy_type not in enemies:
+        raise InvalidTargetError(f"Enemy type '{enemy_type}' not recognized.")
+
+    # return the actual enemy dict
+    return enemies[enemy_type]
 
 def get_random_enemy_for_level(character_level):
     """
