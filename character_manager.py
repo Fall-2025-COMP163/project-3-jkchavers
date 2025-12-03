@@ -60,10 +60,10 @@ def create_character(name, character_class):
 
 
     base_stats = {
-        "Warrior": {"health": 120, "strength": 15, "magic": 5, "Inventory:": {inventory}, "Active Quests" : {active_quests}, "Completed Quests": {completed_quests}},
-        "Mage": {"health": 80, "strength": 8, "magic": 20, "Inventory:": {inventory}, "Active Quests" : {active_quests}, "Completed Quests": {completed_quests}},
-        "Rogue": {"health": 90, "strength": 12, "magic": 10, "Inventory:": {inventory}, "Active Quests" : {active_quests}, "Completed Quests": {completed_quests}},
-        "Cleric": {"health": 100, "strength": 10, "magic": 15, "Inventory:": {inventory}, "Active Quests" : {active_quests}, "Completed Quests": {completed_quests}},
+        "Warrior": {"health": 120, "strength": 15, "magic": 5, "inventory:": {inventory}, "active quests" : {active_quests}, "completed quests": {completed_quests}},
+        "Mage": {"health": 80, "strength": 8, "magic": 20, "inventory:": {inventory}, "active quests" : {active_quests}, "completed quests": {completed_quests}},
+        "Rogue": {"health": 90, "strength": 12, "magic": 10, "inventory:": {inventory}, "active quests" : {active_quests}, "completed quests": {completed_quests}},
+        "Cleric": {"health": 100, "strength": 10, "magic": 15, "inventory:": {inventory}, "active quests" : {active_quests}, "completed quests": {completed_quests}},
 
     }
 
