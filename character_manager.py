@@ -54,21 +54,32 @@ def create_character(name, character_class):
     validate_character_classes = ["Warrior", "Mage", "Rogue", "Cleric"]
     if character_class not in validate_character_classes:
         raise InvalidCharacterClassError()
-    inventory = [] #allows starting inventory options
-    active_quests = [] #allows setting of default starting quest
-    completed_quests = []
 
-
+    # Base stats per class
     base_stats = {
-        "Warrior": {"health": 120, "strength": 15, "magic": 5, "inventory:": inventory, "active quests" : active_quests, "completed quests": completed_quests},
-        "Mage": {"health": 80, "strength": 8, "magic": 20, "inventory:": inventory, "active quests" : active_quests, "completed quests": completed_quests},
-        "Rogue": {"health": 90, "strength": 12, "magic": 10, "inventory:": inventory, "active quests" : active_quests, "completed quests": completed_quests},
-        "Cleric": {"health": 100, "strength": 10, "magic": 15, "inventory:": inventory, "active quests" : active_quests, "completed quests": completed_quests},
-
+        "Warrior": {"health": 120, "strength": 15, "magic": 5},
+        "Mage": {"health": 80, "strength": 8, "magic": 20},
+        "Rogue": {"health": 90, "strength": 12, "magic": 10},
+        "Cleric": {"health": 100, "strength": 10, "magic": 15},
     }
 
-    stats = base_stats[character_class]
-    return stats
+    # Create character dictionary explicitly
+    character = {
+        "name": name,
+        "class": character_class,
+        "level": 1,
+        "experience": 0,
+        "gold": 100,
+        "inventory": [],
+        "active_quests": [],
+        "completed_quests": [],
+        "health": base_stats[character_class]["health"],
+        "max_health": base_stats[character_class]["health"],
+        "strength": base_stats[character_class]["strength"],
+        "magic": base_stats[character_class]["magic"]
+    }
+
+    return character
 
 
 def save_character(character, save_directory="data/save_games"):
@@ -95,28 +106,30 @@ def save_character(character, save_directory="data/save_games"):
     Raises: PermissionError, IOError (let them propagate or handle)
     """
     # TODO: Implement save functionality
-    content = {
-        "FILE_FORMAT": f"{character["name"]}_save.txt",
-        "NAME": character["name"],
-        "CLASS": character["class_name"],
-        "LEVEL": character["level"],
-        "HEALTH": character["health"],
-        "MAX_HEALTH": character["max_health"],
-        "STRENGTH": character["strength"],
-        "MAGIC": character["magic"],
-        "EXPERIENCE": character["experience"],
-        "GOLD": character["gold"],
-        "INVENTORY": character["inventory"],
-        "ACTIVE_QUEST": character["active_quests"],
-        "COMPLETED_QUEST": character["completed_quests"],
-    }
-    # Create save_directory if it doesn't exist
+    os.makedirs(save_directory, exist_ok=True)
+    save_path = os.path.join(save_directory, f"{character['name']}_save.txt")
+
+    content = [
+        f"NAME: {character['name']}",
+        f"CLASS: {character['class']}",
+        f"LEVEL: {character['level']}",
+        f"HEALTH: {character['health']}",
+        f"MAX_HEALTH: {character['max_health']}",
+        f"STRENGTH: {character['strength']}",
+        f"MAGIC: {character['magic']}",
+        f"EXPERIENCE: {character['experience']}",
+        f"GOLD: {character['gold']}",
+        f"INVENTORY: {','.join(character['inventory'])}",
+        f"ACTIVE_QUESTS: {','.join(character['active_quests'])}",
+        f"COMPLETED_QUESTS: {','.join(character['completed_quests'])}"
+    ]
 
     try:
-        with open(save_directory, "w") as f:
-            f.write(content)
-    except Exception as error:
-        print(f"Error Handling for {error}")
+        with open(save_path, "w") as f:
+            f.write("\n".join(content))
+        return True
+    except Exception as e:
+        print(f"Error saving character: {e}")
     # Handle any file I/O errors appropriately
     # Lists should be saved as comma-separated values
 
@@ -137,16 +150,14 @@ def load_character(character_name, save_directory="data/save_games"):
     """
     # TODO: Implement load functionality
     save_path = os.path.join(save_directory, f"{character_name}_save.txt")
-
-    # Check if file exists
-    if not os.path.exists(f"data/save_games/{character_name}_save.txt"):
+    if not os.path.exists(save_path):
         raise CharacterNotFoundError(f"Character '{character_name}' not found")
 
+    character = {}
     try:
         with open(save_path, "r") as f:
             lines = f.readlines()
 
-        character = {}
         for line in lines:
             line = line.strip()
             if not line:
@@ -157,26 +168,22 @@ def load_character(character_name, save_directory="data/save_games"):
             key = key.strip().lower()
             value = value.strip()
 
-            # Convert numeric fields
             if key in ["level", "health", "max_health", "strength", "magic", "experience", "gold"]:
-                try:
-                    value = int(value)
-                except ValueError:
-                    raise InvalidSaveDataError(f"{key} must be an integer")
-
-            # Convert list fields
-            if key in ["inventory", "active_quests", "completed_quests"]:
+                value = int(value)
+            elif key in ["inventory", "active_quests", "completed_quests"]:
                 value = value.split(",") if value else []
+
+            # normalize 'class' key
+            if key == "class":
+                key = "class"
 
             character[key] = value
 
         return character
-
-    except InvalidSaveDataError:
-        raise
+    except InvalidSaveDataError as e:
+        print(f"Invalid numeric value: {e}")
     except SaveFileCorruptedError as e:
-        print(f"Could not read save file: {e}")
-
+        print(f"Could not read file: {e}")
 
 def list_saved_characters(save_directory="data/save_games"):
     """
