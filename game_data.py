@@ -110,11 +110,16 @@ def load_items(filename="data/items.txt"):
 
         parts = line.split(",")
 
-        # EXPECTED FORMAT: item_id,type,effect
+        # Must be exactly 3 values
         if len(parts) != 3:
             raise InvalidDataFormatError(f"Invalid item format: {line}")
 
+        # Strict formatting: no leading/trailing spaces allowed
+        if any(p.strip() != p for p in parts):
+            raise InvalidDataFormatError(f"Invalid item format: {line}")
+
         item_id, item_type, effect = parts
+
         items[item_id] = {
             "type": item_type,
             "effect": effect
