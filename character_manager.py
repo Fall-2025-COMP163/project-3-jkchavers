@@ -51,35 +51,33 @@ def create_character(name, character_class):
     
     # Raise InvalidCharacterClassError if class not in valid list
 
-    validate_character_classes = ["Warrior", "Mage", "Rogue", "Cleric"]
-    if character_class not in validate_character_classes:
-        raise InvalidCharacterClassError()
-
-    # Base stats per class
-    base_stats = {
+    valid_classes = {
         "Warrior": {"health": 120, "strength": 15, "magic": 5},
         "Mage": {"health": 80, "strength": 8, "magic": 20},
         "Rogue": {"health": 90, "strength": 12, "magic": 10},
         "Cleric": {"health": 100, "strength": 10, "magic": 15},
     }
 
-    # Create character dictionary explicitly
-    character = {
+    if character_class not in valid_classes:
+        raise InvalidCharacterClassError(f"Invalid class: {character_class}")
+
+    base = valid_classes[character_class]
+
+    # Return properly shaped, fully-populated character dictionary
+    return {
         "name": name,
         "class": character_class,
         "level": 1,
+        "health": base["health"],
+        "max_health": base["health"],
+        "strength": base["strength"],
+        "magic": base["magic"],
         "experience": 0,
         "gold": 100,
         "inventory": [],
         "active_quests": [],
         "completed_quests": [],
-        "health": base_stats[character_class]["health"],
-        "max_health": base_stats[character_class]["health"],
-        "strength": base_stats[character_class]["strength"],
-        "magic": base_stats[character_class]["magic"]
     }
-
-    return character
 
 
 def save_character(character, save_directory="data/save_games"):
@@ -107,32 +105,30 @@ def save_character(character, save_directory="data/save_games"):
     """
     # TODO: Implement save functionality
     os.makedirs(save_directory, exist_ok=True)
-    save_path = os.path.join(save_directory, f"{character['name']}_save.txt")
 
-    content = [
-        f"NAME: {character['name']}",
-        f"CLASS: {character['class']}",
-        f"LEVEL: {character['level']}",
-        f"HEALTH: {character['health']}",
-        f"MAX_HEALTH: {character['max_health']}",
-        f"STRENGTH: {character['strength']}",
-        f"MAGIC: {character['magic']}",
-        f"EXPERIENCE: {character['experience']}",
-        f"GOLD: {character['gold']}",
-        f"INVENTORY: {','.join(character['inventory'])}",
-        f"ACTIVE_QUESTS: {','.join(character['active_quests'])}",
-        f"COMPLETED_QUESTS: {','.join(character['completed_quests'])}"
-    ]
+    filename = f"{character['name']}_save.txt"
+    save_path = os.path.join(save_directory, filename)
 
     try:
         with open(save_path, "w") as f:
-            f.write("\n".join(content))
-        return True
-    except Exception as e:
-        print(f"Error saving character: {e}")
-    # Handle any file I/O errors appropriately
-    # Lists should be saved as comma-separated values
+            f.write(f"NAME: {character['name']}\n")
+            f.write(f"CLASS: {character['class']}\n")
+            f.write(f"LEVEL: {character['level']}\n")
+            f.write(f"HEALTH: {character['health']}\n")
+            f.write(f"MAX_HEALTH: {character['max_health']}\n")
+            f.write(f"STRENGTH: {character['strength']}\n")
+            f.write(f"MAGIC: {character['magic']}\n")
+            f.write(f"EXPERIENCE: {character['experience']}\n")
+            f.write(f"GOLD: {character['gold']}\n")
 
+            # Lists as comma-separated strings
+            f.write(f"INVENTORY: {','.join(character['inventory'])}\n")
+            f.write(f"ACTIVE_QUESTS: {','.join(character['active_quests'])}\n")
+            f.write(f"COMPLETED_QUESTS: {','.join(character['completed_quests'])}\n")
+
+        return True
+    except OSError as e:
+        print(f"Error:{e}")
 
 def load_character(character_name, save_directory="data/save_games"):
     """
@@ -150,40 +146,46 @@ def load_character(character_name, save_directory="data/save_games"):
     """
     # TODO: Implement load functionality
     save_path = os.path.join(save_directory, f"{character_name}_save.txt")
+
     if not os.path.exists(save_path):
-        raise CharacterNotFoundError(f"Character '{character_name}' not found")
+        raise CharacterNotFoundError(f"Save file for '{character_name}' not found")
 
     character = {}
+
     try:
         with open(save_path, "r") as f:
             lines = f.readlines()
 
         for line in lines:
-            line = line.strip()
-            if not line:
-                continue
             if ":" not in line:
-                raise InvalidSaveDataError("Line missing ':' separator")
+                raise InvalidSaveDataError("Malformed save line")
+
             key, value = line.split(":", 1)
-            key = key.strip().lower()
+            key = key.strip()
             value = value.strip()
 
-            if key in ["level", "health", "max_health", "strength", "magic", "experience", "gold"]:
-                value = int(value)
-            elif key in ["inventory", "active_quests", "completed_quests"]:
-                value = value.split(",") if value else []
+            # Parse numbers
+            if key in ["LEVEL", "HEALTH", "MAX_HEALTH", "STRENGTH",
+                       "MAGIC", "EXPERIENCE", "GOLD"]:
+                try:
+                    character[key.lower()] = int(value)
+                except ValueError:
+                    raise InvalidSaveDataError(f"{key} must be integer")
 
-            # normalize 'class' key
-            if key == "class":
-                key = "class"
+            # Parse lists
+            elif key in ["INVENTORY", "ACTIVE_QUESTS", "COMPLETED_QUESTS"]:
+                character[key.lower()] = value.split(",") if value else []
 
-            character[key] = value
+            else:
+                # Strings
+                character[key.lower()] = value
 
+        # Final validation
+        validate_character_data(character)
         return character
-    except InvalidSaveDataError as e:
-        print(f"Invalid numeric value: {e}")
-    except SaveFileCorruptedError as e:
-        print(f"Could not read file: {e}")
+
+    except OSError:
+        raise SaveFileCorruptedError(f"Could not read file: {save_path}")
 
 def list_saved_characters(save_directory="data/save_games"):
     """

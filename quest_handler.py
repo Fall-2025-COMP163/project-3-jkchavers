@@ -64,9 +64,8 @@ def accept_quest(character, quest_id, quest_data_dict):
     if prereq != "NONE" and prereq not in character["completed_quests"]:
         raise QuestRequirementsNotMetError(f"Prerequisite quest '{prereq}' not completed")
 
-
-    if quest_id in character["completed_quests"]:# Check quest is not already completed
-        return False
+    if quest_id in character["completed_quests"]:
+        raise QuestAlreadyCompletedError(f"Quest '{quest_name}' already completed.")
 
 
     if quest_id in character["active_quests"]: # Check quest is not already active
