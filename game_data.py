@@ -217,52 +217,52 @@ def create_default_data_files():
     Create default data files if they don't exist
     This helps with initial setup and testing
     """
-    # TODO: Implement this function
-    # Create data/ directory if it doesn't exist
-    # Create default quests.txt and items.txt files
-    # Handle any file permission errors appropriately
+    import os
+
     os.makedirs("data", exist_ok=True)
 
     # Default quest file
     default_quests = """\
-    QUEST_ID: quest_1
-    DESCRIPTION: Save the kidnapped villager from goblins.
-    REWARD_GOLD: 50
-    REWARD_EXP: 40
-    REQUIRED_LEVEL: 1
-    PREREQUISITE: NONE
+QUEST_ID: quest_1
+NAME: Rescue the Villager
+DESCRIPTION: Save the kidnapped villager from goblins.
+REWARD_GOLD: 50
+REWARD_EXP: 40
+REQUIRED_LEVEL: 1
+PREREQUISITE: NONE
 
-    QUEST_ID: quest_2
-    DESCRIPTION: Hunt down and defeat the leader of the goblins.
-    REWARD_GOLD: 100
-    REWARD_EXP: 80
-    REQUIRED_LEVEL: 2
-    PREREQUISITE: quest_1
-    """
+QUEST_ID: quest_2
+NAME: Defeat Goblin Leader
+DESCRIPTION: Hunt down and defeat the leader of the goblins.
+REWARD_GOLD: 100
+REWARD_EXP: 80
+REQUIRED_LEVEL: 2
+PREREQUISITE: quest_1
+"""
 
     # Default items
     default_items = """\
-    ITEM_ID: small_potion
-    NAME: Small Health Potion
-    TYPE: consumable
-    EFFECT: health:20
-    COST: 15
-    DESCRIPTION: Restores a small amount of health.
+ITEM_ID: small_potion
+NAME: Small Health Potion
+TYPE: consumable
+EFFECT: health:20
+COST: 15
+DESCRIPTION: Restores a small amount of health.
 
-    ITEM_ID: iron_sword
-    NAME: Iron Sword
-    TYPE: weapon
-    EFFECT: strength:3
-    COST: 60
-    DESCRIPTION: A basic iron sword.
+ITEM_ID: iron_sword
+NAME: Iron Sword
+TYPE: weapon
+EFFECT: strength:3
+COST: 60
+DESCRIPTION: A basic iron sword.
 
-    ITEM_ID: leather_armor
-    NAME: Leather Armor
-    TYPE: armor
-    EFFECT: max_health:10
-    COST: 40
-    DESCRIPTION: Light protective armor.
-    """
+ITEM_ID: leather_armor
+NAME: Leather Armor
+TYPE: armor
+EFFECT: max_health:10
+COST: 40
+DESCRIPTION: Light protective armor.
+"""
 
     try:
         if not os.path.exists("data/quests.txt"):
