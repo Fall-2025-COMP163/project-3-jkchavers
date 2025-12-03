@@ -139,8 +139,8 @@ def load_character(character_name, save_directory="data/save_games"):
     save_path = os.path.join(save_directory, f"{character_name}_save.txt")
 
     # Check if file exists
-    if not os.path.exists(save_path):
-        raise CharacterNotFoundError(f"Character '{character_name}' not found.")
+    if not os.path.exists(f"data/save_games/{character_name}_save.txt"):
+        raise CharacterNotFoundError(f"Character '{character_name}' not found")
 
     try:
         with open(save_path, "r") as f:
